@@ -1,7 +1,7 @@
 import axios from "axios";
 import { redirect } from "next/navigation";
 
-const API_URL = process.env.BASE_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
 
 export async function apiRequest<T>(
   endpoint: string,
@@ -30,8 +30,13 @@ interface Payload {
   password: string;
 }
 export async function registerUser(payload: Payload) {
-  const result = await axios.post(`${API_URL}/api/auth/register`, payload);
-  return result.data;
+  try {
+    const result = await axios.post(`${API_URL}/api/auth/register`, payload);
+    return result.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    throw new Error(error?.response.data.message);
+  }
 }
 
 export async function login(payload: { email: string; password: string }) {

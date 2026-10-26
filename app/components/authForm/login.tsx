@@ -10,6 +10,7 @@ import Input from "../input/Input";
 import { login, loginWithGoogle } from "@/app/api/api";
 import { useRouter } from "next/navigation";
 import GoogleLoginButton from "../input/GoogleLoginButton";
+import { useBoolVariation } from "@launchdarkly/react-sdk";
 
 const loginInitialValues = {
   email: "",
@@ -28,6 +29,8 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+  const showRememberMe = useBoolVariation("display-rememberme", false);
+  const showForgotPassword = useBoolVariation("display-forgot-password", false);
   const router = useRouter();
   const formik = useFormik<LoginFormValues>({
     initialValues: loginInitialValues,
@@ -124,19 +127,22 @@ const LoginForm = () => {
 
         {/* Remember me / Forgot password */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="rememberme" name="rememberme" />
-            <label htmlFor="rememberme" className="text-sm">
-              Remember me
-            </label>
-          </div>
-
-          <Link
-            href="/auth/forgot-password"
-            className="text-sm text-indigo-700"
-          >
-            Forgot Password?
-          </Link>
+          {showRememberMe && (
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="rememberme" name="rememberme" />
+              <label htmlFor="rememberme" className="text-sm">
+                Remember me
+              </label>
+            </div>
+          )}
+          {showForgotPassword && (
+            <Link
+              href="/auth/forgot-password"
+              className="text-sm text-indigo-700"
+            >
+              Forgot Password?
+            </Link>
+          )}
         </div>
 
         <Button

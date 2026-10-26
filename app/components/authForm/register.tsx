@@ -35,8 +35,11 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const RegisterForm = () => {
-  const [isUserRegisteredSuccessfully, setIsUserRegisteredSuccessfully] =
-    useState(false);
+  const [registrationResponse, setRegistrationResponse] = useState({
+    failed: false,
+    message: "",
+  });
+
   const formik = useFormik<RegisterFormValues>({
     initialValues: REGISTER_INITIAL_VALUES,
     validate: (values) => {
@@ -56,10 +59,16 @@ const RegisterForm = () => {
     onSubmit: async (values, { setSubmitting }) => {
       try {
         const result = await registerUser(values);
-        setIsUserRegisteredSuccessfully(true);
-        console.log("Registration result:", result);
-      } catch (error) {
-        console.error("Registration failed:", error);
+        setRegistrationResponse({
+          failed: false,
+          message: result.message as string,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        setRegistrationResponse({
+          failed: true,
+          message: error?.message,
+        });
       } finally {
         setSubmitting(false);
       }
@@ -69,8 +78,16 @@ const RegisterForm = () => {
   useEffect(() => {
     return () => {
       formik.resetForm();
+      setRegistrationResponse({
+        message: "",
+        failed: false,
+      });
     };
   }, []);
+
+  useEffect(() => {
+    console.log({ registrationResponse });
+  }, [registrationResponse]);
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="grid gap-y-5 rounded bg-gray-300 px-12 py-20">
@@ -128,7 +145,7 @@ const RegisterForm = () => {
           />
 
           {formik.touched.password && formik.errors.password && (
-            <p className="mt-1 text-xs text-red-600 break-words">
+            <p className="mt-1 text-xs text-red-600 break-words w-[200px]">
               {formik.errors.password}
             </p>
           )}
@@ -147,12 +164,16 @@ const RegisterForm = () => {
         >
           Login
         </Link>
-        {isUserRegisteredSuccessfully && (
-          <div className="text-green-900 text-xs">
-            User registered successfully. &nbsp;&nbsp;
-            <Link href={"/auth/login"} className="text-blue-600">
-              Login
-            </Link>
+        {registrationResponse.message && (
+          <div
+            className={`${registrationResponse.failed ? "text-red-500" : "text-green-900"} text-xs text-center`}
+          >
+            {registrationResponse.message} &nbsp;&nbsp;
+            {!registrationResponse.failed && (
+              <Link href={"/auth/login"} className="text-blue-600">
+                Login
+              </Link>
+            )}
           </div>
         )}
       </div>
