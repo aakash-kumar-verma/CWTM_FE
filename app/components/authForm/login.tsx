@@ -8,6 +8,7 @@ import { z } from "zod";
 import Button from "../input/Button";
 import Input from "../input/Input";
 import { login, loginWithGoogle } from "@/app/api/api";
+
 import { useRouter } from "next/navigation";
 import GoogleLoginButton from "../input/GoogleLoginButton";
 import { useBoolVariation } from "@launchdarkly/react-sdk";
@@ -60,7 +61,6 @@ const LoginForm = () => {
 
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        // Call your login API here.
         const result = await login(values);
         console.log("Login result:", result);
         router.replace("/dashboard");

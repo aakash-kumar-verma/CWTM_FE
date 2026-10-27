@@ -1,5 +1,6 @@
 import axios from "axios";
 import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
 
@@ -40,9 +41,11 @@ export async function registerUser(payload: Payload) {
 }
 
 export async function login(payload: { email: string; password: string }) {
-  const result = await axios.post(`${API_URL}/api/auth/login`, payload, {
-    withCredentials: true,
-  });
+  console.log(1, payload);
+
+  const result = await axios.post("/api/login", payload);
+  console.log(6, result);
+
   return result.data;
 }
 
